@@ -10,29 +10,35 @@ city="${spliter[1]}"
 
 reportdate=$(TZ=CST-8 date +"%Y-%-m-%d")
 
+echo "$reportdate" >>report.log
+
 if [[ -z $username ]]; then
   echo "miss LNUT_USER"
-  exit 1
+  echo "miss LNUT_USER" >>report.log
+  exit 0
 fi
 
 if [[ -z $password ]]; then
   echo "miss LNUT_PASSWORD"
-  exit 1
+  echo "miss LNUT_PASSWORD" >>report.log
+  exit 0
 fi
 
 if [[ -z $nowaddress ]]; then
   echo "miss NOW_ADDRESS"
-  exit 1
+  exit 0
 fi
 
 if [[ -z $convince ]]; then
   echo "could not get convince from NOW_ADDRESS"
-  exit 1
+  echo "could not get convince from NOW_ADDRESS" >>report.log
+  exit 0
 fi
 
 if [[ -z $city ]]; then
   echo "could not get city from NOW_ADDRESS"
-  exit 1
+  echo "could not get city from NOW_ADDRESS" >>report.log
+  exit 0
 fi
 
 user=$(
@@ -53,8 +59,9 @@ user=$(
 token=$(echo "$user" | jq -r '.result.token')
 
 if [[ -z $token || $token == null ]]; then
-  echo 'login failed'
-  exit 1
+  echo "login failed: $user"
+  echo "login failed: $user" >>report.log
+  exit 0
 fi
 
 report=$(
@@ -74,11 +81,4 @@ report=$(
 )
 
 echo "$report"
-
-result=$(echo "$report" | jq '.result')
-
-if [[ $result == null ]]; then
-  exit 1
-fi
-
-echo "success"
+echo "$report" >>report.log
